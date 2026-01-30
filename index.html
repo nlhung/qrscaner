@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner - GitHub Pages</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        /* Khung chứa Camera */
+        #reader {
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        /* Kết quả hiển thị */
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            border-radius: 5px;
+            color: #2e7d32;
+            word-break: break-all;
+            display: none; /* Ẩn mặc định */
+        }
+        
+        #result a {
+            color: #1565c0;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Quét mã QR Online</h1>
+        
+        <div id="reader"></div>
+
+        <div id="result">
+            <strong>Kết quả:</strong> <span id="content"></span>
+        </div>
+    </div>
+
+    <script>
+        // Hàm xử lý khi quét thành công
+        function onScanSuccess(decodedText, decodedResult) {
+            // Hiển thị kết quả ra màn hình
+            const resultDiv = document.getElementById('result');
+            const contentSpan = document.getElementById('content');
+            
+            resultDiv.style.display = 'block';
+            
+            // Kiểm tra nếu là link thì tạo thẻ a, ngược lại hiện text
+            if (isValidUrl(decodedText)) {
+                contentSpan.innerHTML = `<a href="${decodedText}" target="_blank">${decodedText}</a>`;
+            } else {
+                contentSpan.innerText = decodedText;
+            }
+
+            console.log(`Mã quét được: ${decodedText}`, decodedResult);
+            
+            // Tùy chọn: Dừng quét sau khi đọc được (bỏ comment dòng dưới nếu muốn)
+            // html5QrcodeScanner.clear();
+        }
+
+        // Hàm xử lý khi quét thất bại (thường xuyên xảy ra khi camera đang tìm mã, nên để trống để đỡ rối console)
+        function onScanFailure(error) {
+            // console.warn(`Code scan error = ${error}`);
+        }
+
+        // Cấu hình Scanner
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", 
+            { 
+                fps: 10, // Số khung hình trên giây (thấp để đỡ tốn pin)
+                qrbox: { width: 250, height: 250 } // Vùng quét
+            },
+            /* verbose= */ false
+        );
+
+        // Khởi chạy
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+
+        // Hàm phụ trợ kiểm tra URL đơn giản
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>
